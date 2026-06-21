@@ -20,6 +20,13 @@ export interface AggRow {
   evpm: number;
 }
 
+export interface PaginatedAggregation {
+  total: number;
+  limit: number;
+  offset: number;
+  items: AggRow[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   constructor(private http: HttpClient) {}
@@ -32,7 +39,14 @@ export class ApiService {
     return this.http.get<TimeseriesRow[]>(`${BASE}/timeseries`, { params: { event } });
   }
 
-  getAggregation(by: string, event: string): Observable<AggRow[]> {
-    return this.http.get<AggRow[]>(`${BASE}/aggregation`, { params: { by, event } });
+  getAggregation(
+    by: string,
+    event: string,
+    limit = 100,
+    offset = 0,
+  ): Observable<PaginatedAggregation> {
+    return this.http.get<PaginatedAggregation>(`${BASE}/aggregation`, {
+      params: { by, event, limit, offset },
+    });
   }
 }

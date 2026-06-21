@@ -39,18 +39,27 @@ class TestAggregationEndpoint:
         assert client.get("/api/aggregation", params={"by": by, "event": "fclick"}).status_code == 200
 
     @pytest.mark.parametrize("by", ["mm_dma", "site_id"])
-    def test_response_is_list(self, client, by):
-        assert isinstance(
-            client.get("/api/aggregation", params={"by": by, "event": "fclick"}).json(), list
-        )
+    def test_response_shape(self, client, by):
+        body = client.get("/api/aggregation", params={"by": by, "event": "fclick"}).json()
+        assert {"total", "limit", "offset", "items"} <= body.keys()
+        assert isinstance(body["items"], list)
 
-    def test_dma_fields(self, client):
-        row = client.get("/api/aggregation", params={"by": "mm_dma", "event": "fclick"}).json()[0]
-        assert {"mm_dma", "impressions", "events", "ctr", "evpm"} <= row.keys()
+    def test_dma_item_fields(self, client):
+        body = client.get("/api/aggregation", params={"by": "mm_dma", "event": "fclick"}).json()
+        assert {"mm_dma", "impressions", "events", "ctr", "evpm"} <= body["items"][0].keys()
 
-    def test_site_fields(self, client):
-        row = client.get("/api/aggregation", params={"by": "site_id", "event": "fclick"}).json()[0]
-        assert {"site_id", "impressions", "events", "ctr", "evpm"} <= row.keys()
+    def test_site_item_fields(self, client):
+        body = client.get("/api/aggregation", params={"by": "site_id", "event": "fclick"}).json()
+        assert {"site_id", "impressions", "events", "ctr", "evpm"} <= body["items"][0].keys()
+
+    def test_total_equals_distinct_values(self, client):
+        body = client.get("/api/aggregation", params={"by": "mm_dma", "event": "fclick"}).json()
+        assert body["total"] == 2   # fixture has DMA 501 and 612
+
+    def test_pagination_limit(self, client):
+        body = client.get("/api/aggregation", params={"by": "mm_dma", "event": "fclick", "limit": 1}).json()
+        assert len(body["items"]) == 1
+        assert body["total"] == 2
 
     def test_bad_dimension_returns_400(self, client):
         assert client.get("/api/aggregation", params={"by": "uid", "event": "fclick"}).status_code == 400
@@ -63,3 +72,6 @@ class TestAggregationEndpoint:
 
     def test_missing_event_returns_422(self, client):
         assert client.get("/api/aggregation", params={"by": "mm_dma"}).status_code == 422
+
+    def test_limit_too_large_returns_422(self, client):
+        assert client.get("/api/aggregation", params={"by": "mm_dma", "event": "fclick", "limit": 9999}).status_code == 422

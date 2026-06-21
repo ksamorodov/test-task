@@ -200,3 +200,67 @@
     font-variant-numeric: tabular-nums;
   }
 }
+
+/* ── Pagination ──────────────────────────────── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid #334155;
+
+  &__info {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    min-width: 60px;
+    text-align: center;
+  }
+
+  .btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+}
+
+/* ── Error banner ────────────────────────────── */
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #450a0a;
+  border: 1px solid #7f1d1d;
+  color: #fca5a5;
+  border-radius: 8px;
+  padding: 0.85rem 1.25rem;
+  font-size: 0.9rem;
+
+  &__icon { font-size: 1.1rem; }
+}
+
+/* ── Chart legend ────────────────────────────── */
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: #94a3b8;
+
+  &__dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+
+    &--ctr  { background: #6366f1; margin-left: 0.5rem; }
+    &--evpm { background: #10b981; margin-left: 0.5rem; }
+  }
+}
+
+/* ── Card subtitle ───────────────────────────── */
+.card__subtitle {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #64748b;
+  margin-left: 0.5rem;
+}

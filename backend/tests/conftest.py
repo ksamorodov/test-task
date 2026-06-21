@@ -4,13 +4,11 @@ import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
 
-from app import main as app_module
 from app.main import app
-from app.repository import get_dataframes, get_event_types
 
 
 # ---------------------------------------------------------------------------
-# Synthetic DataFrames
+# Factory for synthetic DataFrames — called inside fixtures, not at import time.
 #
 # 4 impressions: 2 dates × 2 DMA codes × 2 sites
 #   u1: 2021-07-21, DMA 501, site_a  → fclick
@@ -19,30 +17,55 @@ from app.repository import get_dataframes, get_event_types
 #   u4: 2021-07-22, DMA 612, site_b  → (no event)
 # ---------------------------------------------------------------------------
 
-DF_X = pd.DataFrame(
-    {
-        "uid": ["u1", "u2", "u3", "u4"],
-        "reg_time": pd.to_datetime(
-            ["2021-07-21 10:00", "2021-07-21 11:00", "2021-07-22 09:00", "2021-07-22 12:00"]
-        ),
-        "mm_dma": [501, 501, 612, 612],
-        "site_id": ["site_a", "site_b", "site_a", "site_b"],
-    }
-)
-DF_X["date"] = DF_X["reg_time"].dt.date
+def _make_dataframes():
+    df_x = pd.DataFrame(
+        {
+            "uid": ["u1", "u2", "u3", "u4"],
+            "reg_time": pd.to_datetime(
+                ["2021-07-21 10:00", "2021-07-21 11:00", "2021-07-22 09:00", "2021-07-22 12:00"]
+            ),
+            "mm_dma": [501, 501, 612, 612],
+            "site_id": ["site_a", "site_b", "site_a", "site_b"],
+        }
+    )
+    df_x["date"] = df_x["reg_time"].dt.date
 
-DF_Y = pd.DataFrame({"uid": ["u1", "u3"], "tag": ["fclick", "fclick"]})
+    df_y = pd.DataFrame({"uid": ["u1", "u3"], "tag": ["fclick", "fclick"]})
 
-DF_MERGED = DF_X.merge(DF_Y, on="uid", how="left")
-DF_MERGED["tag"] = DF_MERGED["tag"].fillna("_no_event")
+    df_merged = df_x.merge(df_y, on="uid", how="left")
+    df_merged["tag"] = df_merged["tag"].fillna("_no_event")
+
+    return df_x, df_y, df_merged
+
+
+@pytest.fixture()
+def dataframes():
+    """Fresh synthetic DataFrames per test — no shared mutable state."""
+    return _make_dataframes()
+
+
+# Convenience aliases consumed by test_service.py
+@pytest.fixture()
+def df_x(dataframes):
+    return dataframes[0]
+
+
+@pytest.fixture()
+def df_merged(dataframes):
+    return dataframes[2]
 
 
 @pytest.fixture(autouse=True)
-def patch_repository(monkeypatch):
-    """Replace repository functions with synthetic data for every test."""
-    monkeypatch.setattr("app.repository.get_dataframes", lambda: (DF_X, DF_Y, DF_MERGED))
-    monkeypatch.setattr("app.router.get_dataframes", lambda: (DF_X, DF_Y, DF_MERGED))
+def patch_repository(monkeypatch, dataframes):
+    """Patch both the repository module and its re-imports in router.py."""
+    df_x, df_y, df_merged = dataframes
+
+    # Single source of truth: patch app.repository, then make router
+    # point at the already-patched name via the same target.
+    monkeypatch.setattr("app.repository.get_dataframes", lambda: (df_x, df_y, df_merged))
     monkeypatch.setattr("app.repository.get_event_types", lambda: ["fclick"])
+    # router imported these names at module load time — patch those bindings too
+    monkeypatch.setattr("app.router.get_dataframes", lambda: (df_x, df_y, df_merged))
     monkeypatch.setattr("app.router.get_event_types", lambda: ["fclick"])
 
 
