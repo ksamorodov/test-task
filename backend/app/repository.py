@@ -36,5 +36,19 @@ def get_dataframes() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
 
 def get_event_types() -> list[str]:
+    """Return sorted list of base event types available for EvPM selection.
+
+    Rules:
+    - 'fclick' is excluded — it is used internally for CTR, not selectable.
+    - View-through variants ('v' + base) are stripped; only base names are
+      returned. E.g. both 'registration' and 'vregistration' → 'registration'.
+    - The tag 'tag' (malformed entry in the data) is also excluded.
+    """
     _, df_y, _ = get_dataframes()
-    return sorted(df_y["tag"].unique().tolist())
+    raw_tags: set[str] = set(df_y["tag"].unique())
+    base_types = {
+        tag.lstrip("v") if tag.startswith("v") else tag
+        for tag in raw_tags
+        if tag not in {"fclick", "tag"}
+    }
+    return sorted(base_types)

@@ -56,7 +56,7 @@
             <tr>
               <th>{{ aggDimKey === 'mm_dma' ? 'DMA' : 'Site' }}</th>
               <th class="num">Impressions</th>
-              <th class="num">Events</th>
+<!--              <th class="num">Events</th>-->
               <th class="num">CTR (%)</th>
               <th class="num">EvPM</th>
             </tr>
@@ -65,7 +65,7 @@
             <tr *ngFor="let row of aggData">
               <td>{{ row[aggDimKey] }}</td>
               <td class="num">{{ row['impressions'] | number }}</td>
-              <td class="num">{{ row['events'] | number }}</td>
+<!--              <td class="num">{{ row['events'] | number }}</td>-->
               <td class="num">{{ row['ctr'] | number:'1.4-4' }}</td>
               <td class="num">{{ row['evpm'] | number:'1.4-4' }}</td>
             </tr>

@@ -4,17 +4,19 @@ from pydantic import BaseModel, Field
 class TimeseriesRow(BaseModel):
     date: str
     impressions: int
-    events: int
-    ctr: float = Field(description="Click-through rate, %")
-    evpm: float = Field(description="Events per thousand impressions")
+    clicks: int = Field(description="fclick count — used for CTR")
+    events: int = Field(description="event + vevent count — used for EvPM")
+    ctr: float = Field(description="100 * clicks / impressions, %")
+    evpm: float = Field(description="1000 * events / impressions, ‰")
 
 
 class AggregationRow(BaseModel):
     dimension_value: str | int = Field(alias="dim")
     impressions: int
-    events: int
-    ctr: float = Field(description="Click-through rate, %")
-    evpm: float = Field(description="Events per thousand impressions")
+    clicks: int = Field(description="fclick count — used for CTR")
+    events: int = Field(description="event + vevent count — used for EvPM")
+    ctr: float = Field(description="100 * clicks / impressions, %")
+    evpm: float = Field(description="1000 * events / impressions, ‰")
 
 
 class PaginatedAggregation(BaseModel):

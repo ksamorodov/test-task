@@ -11,18 +11,18 @@ test-task/
 │   └── interview.y.csv
 ├── backend/
 │   ├── app/
-│   │   ├── config.py       # pydantic-settings (пути к CSV, env APP_X_CSV / APP_Y_CSV)
-│   │   ├── repository.py   # загрузка DataFrame, lru_cache
-│   │   ├── service.py      # расчёт CTR / EvPM
-│   │   ├── schemas.py      # Pydantic-модели ответов
-│   │   ├── router.py       # FastAPI-роутер
-│   │   └── main.py         # создание app, CORS, подключение роутера
+│   │   ├── config.py       
+│   │   ├── repository.py   # load DataFrame, lru_cache
+│   │   ├── service.py      # calculate CTR / EvPM
+│   │   ├── schemas.py      # API response schemas
+│   │   ├── router.py       # FastAPI-router
+│   │   └── main.py         
 │   ├── tests/
-│   │   ├── conftest.py     # синтетические фикстуры, autouse-патч репозитория
+│   │   ├── conftest.py     
 │   │   ├── test_repository.py
 │   │   ├── test_service.py
 │   │   └── test_router.py
-│   ├── pyproject.toml      # конфиг pytest + coverage
+│   ├── pyproject.toml      
 │   └── requirements.txt
 └── frontend/               # Angular 17 + Chart.js
 ```
@@ -60,13 +60,6 @@ npx ng serve
 
 ```bash
 cd backend
-source .venv/bin/activate   # если venv ещё не активирован
+source .venv/bin/activate 
 pytest
 ```
-
-42 теста, ~0.2 сек. Реальные CSV не нужны — репозиторий замокан синтетическими данными.
-
-## Metrics
-
-- **CTR** = events / impressions × 100 (%)
-- **EvPM** = events / impressions × 1000 (events per thousand impressions)
