@@ -1,0 +1,70 @@
+<div class="shell">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header__inner">
+      <span class="header__logo">📊 Campaign Analytics</span>
+
+      <div class="controls">
+        <label class="ctrl-label">Event type</label>
+        <select class="select" [(ngModel)]="selectedEvent" (ngModelChange)="onEventChange()">
+          <option *ngFor="let t of eventTypes" [value]="t">{{ t }}</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- TIME-SERIES SECTION -->
+    <section class="card">
+      <div class="card__head">
+        <h2 class="card__title">Campaign Performance Over Time</h2>
+        <div class="btn-group">
+          <button class="btn" [class.btn--active]="selectedMetric === 'ctr'" (click)="onMetricChange('ctr')">CTR</button>
+          <button class="btn" [class.btn--active]="selectedMetric === 'evpm'" (click)="onMetricChange('evpm')">EvPM</button>
+        </div>
+      </div>
+
+      <div class="chart-wrap">
+        <div *ngIf="loading" class="spinner-wrap"><span class="spinner"></span></div>
+        <canvas #chartCanvas></canvas>
+      </div>
+    </section>
+
+    <!-- AGGREGATION SECTION -->
+    <section class="card">
+      <div class="card__head">
+        <h2 class="card__title">Aggregation Table</h2>
+        <div class="btn-group">
+          <button class="btn" [class.btn--active]="selectedDim === 'mm_dma'" (click)="onDimChange('mm_dma')">DMA</button>
+          <button class="btn" [class.btn--active]="selectedDim === 'site_id'" (click)="onDimChange('site_id')">Site</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>{{ aggDimKey === 'mm_dma' ? 'DMA' : 'Site' }}</th>
+              <th class="num">Impressions</th>
+              <th class="num">Events</th>
+              <th class="num">CTR (%)</th>
+              <th class="num">EvPM</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of aggData">
+              <td>{{ row[aggDimKey] }}</td>
+              <td class="num">{{ row['impressions'] | number }}</td>
+              <td class="num">{{ row['events'] | number }}</td>
+              <td class="num">{{ row['ctr'] | number:'1.4-4' }}</td>
+              <td class="num">{{ row['evpm'] | number:'1.4-4' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
