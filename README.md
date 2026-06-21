@@ -44,6 +44,16 @@ npx ng serve
 | GET | `/api/timeseries?event=<tag>` | Daily CTR & EvPM |
 | GET | `/api/aggregation?by=mm_dma\|site_id&event=<tag>` | Aggregated table |
 
+## Tests
+
+```bash
+cd backend
+source .venv/bin/activate   # активировать venv (если ещё не активирован)
+pytest test_main.py -v --cov=main --cov-report=term-missing
+```
+
+34 теста, ~1 сек. Реальные CSV не нужны — данные замоканы.
+
 ## Metrics
 
 - **CTR** = events / impressions × 100 (%)
